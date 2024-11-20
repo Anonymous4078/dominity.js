@@ -16,7 +16,7 @@ It's coupled with a client side router as well.
 You can start a new dominity project easily by importing straight from a cdn
 
 ```js
-import D from "https://esm.sh/dominity@latest";
+import D from 'https://esm.sh/dominity@latest';
 ```
 
 Its final bundle size is just around `6-7` Kb.
@@ -30,7 +30,7 @@ npm i dominity@latest
 ```
 
 ```js
-import { state } from "dominity";
+import { state } from 'dominity';
 ```
 
 ## Using with Vite
@@ -52,12 +52,12 @@ The syntax is very similiar to <a href="https://hyperscript.org/">Hyperscript</a
 Dominity gives you functions that create HTML elements that's it.
 
 ```js
-import { p, div } from "dominity";
+import { p, div } from 'dominity';
 
-div("hello world", { class: "text-primary", id: "title" });
+div('hello world', { class: 'text-primary', id: 'title' });
 
 p(
-  { class: "text-secondary" },
+  { class: 'text-secondary' },
   `
 lorem ipsum dolor sit amet lorem ipsum dolor sit amet 
 lorem ipsum dolor sit amet 
@@ -72,9 +72,9 @@ Objects with key value pairs passed in are considered attributes and strings are
 
 ```js
 ul(
-  li(a("yo", { href: "#" })),
-  li(a("yo", { href: "#" })),
-  li(a("yo", { href: "#" })),
+  li(a('yo', { href: '#' })),
+  li(a('yo', { href: '#' })),
+  li(a('yo', { href: '#' })),
 );
 ```
 
@@ -88,7 +88,7 @@ Dominity allows us to create components with ease by encapsulating Dominity code
 A simple button component
 
 ```js
-import { button, h1 } from "dominity";
+import { button, h1 } from 'dominity';
 
 function Button(text, color) {
   return button(text).css({
@@ -96,32 +96,32 @@ function Button(text, color) {
   });
 }
 
-Button("click me", "blue").on("click", (e) => {
-  e.target.style.backgroundColor = "lavander";
+Button('click me', 'blue').on('click', (e) => {
+  e.target.style.backgroundColor = 'lavander';
 });
 //here button changes color when u click it
 
-h1(Button("click me", "red"));
+h1(Button('click me', 'red'));
 ```
 
 #### Nesting DOM Elements
 
 ```js
-div(p("paragraph 1"), p("paragraph"));
+div(p('paragraph 1'), p('paragraph'));
 ```
 
 We recommend using intendation to make it look nice and legible
 
 ```js
-import { div, p, button, img } from "dominity";
+import { div, p, button, img } from 'dominity';
 
 div(
-  p("howdy"),
-  button("join us").on("click", joinAction),
+  p('howdy'),
+  button('join us').on('click', joinAction),
   div(
     img({
-      alt: "profile pic",
-      src: "https://...",
+      alt: 'profile pic',
+      src: 'https://...',
     }),
   ),
 );
@@ -132,9 +132,9 @@ div(
 Dominity has a unique and simple reactivity system
 
 ```js
-let opinion = state("good");
+let opinion = state('good');
 
-h1("you are so ", opinion); //you are so good
+h1('you are so ', opinion); //you are so good
 ```
 
 Function `state()` is used to create any litteral that is reactive it can be a integer,float,string,an object an array whats so ever ,it returns an object which stores the actual value in the `.value`
@@ -144,7 +144,7 @@ It carries over to child element if its on parent element as well.
 In the above example whenever we change the value of opinion by assigning to `.value` property its change is reflected on the h1 tag.
 
 ```js
-opinion.value = "bad";
+opinion.value = 'bad';
 ```
 
 Given below is an example of a simple counter using dominity.
@@ -154,20 +154,20 @@ function Counter() {
   let count = state(0);
 
   return div(
-    p("count:",count),
-    button("increment").on('click',() => {
-      count.value=count.value+1;
+    p('count:', count),
+    button('increment').on('click', () => {
+      count.value = count.value + 1;
     }),
 
-    button('decrement').on('click',() => {
-            count.value=count.value+1;
+    button('decrement').on('click', () => {
+      count.value = count.value + 1;
     }),
-)
+  );
 }
 ```
 
 ```js
-let name = state("vishal");
+let name = state('vishal');
 
 let nameAsList = derived(() => {
   return Array.from(name.value);
@@ -185,10 +185,10 @@ function Dropdown(op = false) {
   let open = state(op);
 
   return div(
-    button("dropdown button").on("click", () => {
+    button('dropdown button').on('click', () => {
       open.value = !open.value;
     }),
-    div("some very respectable dropdown content").showIf(open),
+    div('some very respectable dropdown content').showIf(open),
   );
 }
 ```
@@ -200,15 +200,15 @@ It hides otherwise.
 
 ```js
 function filterSearch() {
-  let search = state("");
-  let items = ["potatoes", "chicken", "rice", "bread"];
+  let search = state('');
+  let items = ['potatoes', 'chicken', 'rice', 'bread'];
 
   let filteredItems = derived(() => {
     return items.filter((i) => i.startsWith(search.value));
   });
 
   return div(
-    input({ placeholder: "search in filter", type: "search" }).model(search),
+    input({ placeholder: 'search in filter', type: 'search' }).model(search),
 
     ul().forEvery(filterdItems, (item) => {
       return li(item);
@@ -307,16 +307,16 @@ clientside routing is simpler than ever before with dominity's in built router
 ```js
 let r = new DominityRouter();
 r.setRoutes({
-  "/home": {
+  '/home': {
     component: homeComponent(),
     isDefault: true, //sets /home as default route on page load to /
   },
 
-  "/marketing": {
+  '/marketing': {
     component: marketingComponent(),
   },
 
-  "/about": {
+  '/about': {
     component: aboutComponent(),
   },
 });

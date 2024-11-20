@@ -177,7 +177,7 @@ var computed = function (fn) {
 var cleanupEffect = function (effect) {
   const cleanup = effect._cleanup;
   effect._cleanup = undefined;
-  if (typeof cleanup === "function") {
+  if (typeof cleanup === 'function') {
     startBatch();
     const prevContext = evalContext;
     evalContext = undefined;
@@ -208,7 +208,7 @@ var disposeEffect = function (effect) {
 };
 var endEffect = function (prevContext) {
   if (evalContext !== this) {
-    throw new Error("Out-of-order effect");
+    throw new Error('Out-of-order effect');
   }
   cleanupSources(this);
   evalContext = prevContext;
@@ -235,7 +235,7 @@ var effect = function (fn) {
   }
   return effect2._dispose.bind(effect2);
 };
-var BRAND_SYMBOL = Symbol.for("preact-signals");
+var BRAND_SYMBOL = Symbol.for('preact-signals');
 var RUNNING = 1 << 0;
 var NOTIFIED = 1 << 1;
 var OUTDATED = 1 << 2;
@@ -293,7 +293,7 @@ Signal.prototype.valueOf = function () {
   return this.value;
 };
 Signal.prototype.toString = function () {
-  return this.value + "";
+  return this.value + '';
 };
 Signal.prototype.toJSON = function () {
   return this.value;
@@ -307,7 +307,7 @@ Signal.prototype.peek = function () {
     evalContext = prevContext;
   }
 };
-Object.defineProperty(Signal.prototype, "value", {
+Object.defineProperty(Signal.prototype, 'value', {
   get() {
     const node = addDependency(this);
     if (node !== undefined) {
@@ -318,7 +318,7 @@ Object.defineProperty(Signal.prototype, "value", {
   set(value) {
     if (value !== this._value) {
       if (batchIteration > 100) {
-        throw new Error("Cycle detected");
+        throw new Error('Cycle detected');
       }
       this._value = value;
       this._version++;
@@ -421,10 +421,10 @@ Computed.prototype._notify = function () {
     }
   }
 };
-Object.defineProperty(Computed.prototype, "value", {
+Object.defineProperty(Computed.prototype, 'value', {
   get() {
     if (this._flags & RUNNING) {
-      throw new Error("Cycle detected");
+      throw new Error('Cycle detected');
     }
     const node = addDependency(this);
     this._refresh();
@@ -443,7 +443,7 @@ Effect.prototype._callback = function () {
     if (this._flags & DISPOSED) return;
     if (this._fn === undefined) return;
     const cleanup = this._fn();
-    if (typeof cleanup === "function") {
+    if (typeof cleanup === 'function') {
       this._cleanup = cleanup;
     }
   } finally {
@@ -452,7 +452,7 @@ Effect.prototype._callback = function () {
 };
 Effect.prototype._start = function () {
   if (this._flags & RUNNING) {
-    throw new Error("Cycle detected");
+    throw new Error('Cycle detected');
   }
   this._flags |= RUNNING;
   this._flags &= ~DISPOSED;
@@ -491,10 +491,10 @@ var el = function (tagname, ...args) {
   let elem = document.createElement(tagname);
   let dElem = new DominityElement(elem);
   args.forEach((arg, index) => {
-    if (typeof arg == "string") {
+    if (typeof arg == 'string') {
       let textNode = document.createTextNode(arg);
       elem.appendChild(textNode);
-    } else if (typeof arg == "function" && typeof arg() == "string") {
+    } else if (typeof arg == 'function' && typeof arg() == 'string') {
       let textNode = document.createTextNode(arg());
       effect2(() => {
         textNode.data = arg();
@@ -509,8 +509,8 @@ var el = function (tagname, ...args) {
     } else if (arg instanceof DominityElement) {
       elem.appendChild(arg.elem);
     } else if (
-      typeof arg == "object" ||
-      (typeof arg == "function" && typeof arg() == "object")
+      typeof arg == 'object' ||
+      (typeof arg == 'function' && typeof arg() == 'object')
     ) {
       dElem.attr(arg);
     } else if (arg instanceof Array) {
@@ -519,7 +519,7 @@ var el = function (tagname, ...args) {
           elem.appendChild(ar.elem);
         } else {
           throw new Error(
-            "Dominity Error: invalid element type passed in as array ,all elements of the array should be of type DominityElement",
+            'Dominity Error: invalid element type passed in as array ,all elements of the array should be of type DominityElement',
           );
         }
       });
@@ -538,7 +538,7 @@ var DominityReactive = Signal;
 //------------------------------------------💓💓💓💓💓💓💓 thanks for scrolling ------------------------------------------------
 class DominityElement {
   constructor(qry) {
-    if (typeof qry == "string") {
+    if (typeof qry == 'string') {
       this.elem = document.querySelector(qry);
     } else {
       this.elem = qry;
@@ -552,7 +552,7 @@ class DominityElement {
     if (val == null) {
       return this.elem.innerHTML;
     } else {
-      if (typeof val == "function") {
+      if (typeof val == 'function') {
         effect2(() => {
           this.html(val());
         });
@@ -563,17 +563,17 @@ class DominityElement {
     }
   }
   css(prp, val = undefined) {
-    if (typeof prp == "string") {
+    if (typeof prp == 'string') {
       if (val == undefined) {
         return window.getComputedStyle(this.elem, null).getPropertyValue(prp);
       } else {
         this.elem.style[prp] = val;
         return this;
       }
-    } else if (typeof prp == "object") {
+    } else if (typeof prp == 'object') {
       Object.assign(this.elem.style, prp);
       return this;
-    } else if (typeof prp == "function") {
+    } else if (typeof prp == 'function') {
       effect2(() => {
         this.css(prp());
       });
@@ -581,14 +581,14 @@ class DominityElement {
     }
   }
   attr(prp, val = undefined) {
-    if (typeof prp == "string") {
+    if (typeof prp == 'string') {
       if (val == undefined) {
         return this.elem.getAttribute(prp);
       } else {
         this.elem.setAttribute(prp, val);
         return this;
       }
-    } else if (typeof prp == "object") {
+    } else if (typeof prp == 'object') {
       let attrs = Object.keys(prp);
       let vals = Object.values(prp);
       attrs.forEach((p, i) => {
@@ -596,9 +596,9 @@ class DominityElement {
           effect2(() => {
             this.attr(p, vals[i].value);
           });
-        } else if (typeof vals[i] != "function") {
+        } else if (typeof vals[i] != 'function') {
           this.attr(p, vals[i]);
-        } else if (typeof vals[i] == "function") {
+        } else if (typeof vals[i] == 'function') {
           effect2(() => {
             this.attr(p, vals[i]());
           });
@@ -618,8 +618,8 @@ class DominityElement {
   //css based rerenderer
   showIf(expression) {
     let storedDisplay =
-      this.css("display") != "none" ? this.css("display") : "block";
-    if (typeof expression == "function") {
+      this.css('display') != 'none' ? this.css('display') : 'block';
+    if (typeof expression == 'function') {
       effect2(() => {
         this.showIf(expression());
       });
@@ -631,7 +631,7 @@ class DominityElement {
     } else if (expression) {
       this.elem.style.display = storedDisplay;
     } else {
-      this.elem.style.display = "none";
+      this.elem.style.display = 'none';
     }
     return this;
   }
@@ -640,7 +640,7 @@ class DominityElement {
     let elemS = this;
     if (list instanceof DominityReactive) {
       effect2(() => {
-        elemS.elem.innerHTML = "";
+        elemS.elem.innerHTML = '';
         list.value.forEach((item, count) => {
           callback(item, elemS, count).addTo(this);
         });
@@ -648,7 +648,7 @@ class DominityElement {
       return this;
     }
     console.error(
-      "DominityError: list item for ._elFor has to be a reactive object made with rst() and iterable",
+      'DominityError: list item for ._elFor has to be a reactive object made with rst() and iterable',
     );
     return this;
   }
@@ -666,9 +666,9 @@ class DominityElement {
   }
 
   model(target, options) {
-    let attr = "value"; //todo radio groups doesnt work
-    if (this.attr("type") == "checkbox") {
-      attr = "checked";
+    let attr = 'value'; //todo radio groups doesnt work
+    if (this.attr('type') == 'checkbox') {
+      attr = 'checked';
     }
     if (target instanceof DominityReactive) {
       if (options?.debounce == undefined && options?.throttle == undefined) {
@@ -688,15 +688,15 @@ class DominityElement {
       }
       let timeoutId;
       let lastcalltime = 0;
-      this.on("input", () => {
+      this.on('input', () => {
         let val = this.elem.value;
-        if (this.attr("type") == "number") {
-          if (val == "") {
-            val = "0";
+        if (this.attr('type') == 'number') {
+          if (val == '') {
+            val = '0';
           }
           val = parseFloat(val);
         }
-        if (attr == "checked") {
+        if (attr == 'checked') {
           if (!(target.value instanceof Array)) {
             if (this.elem.checked) {
               val = true;
@@ -730,7 +730,7 @@ class DominityElement {
     }
     return this;
   }
-  animate(props, duration, easing = "linear", callback = undefined) {
+  animate(props, duration, easing = 'linear', callback = undefined) {
     let priorkeyframes = {};
     Object.keys(props).forEach((prop) => {
       if (props[prop] instanceof Array) {
@@ -743,11 +743,11 @@ class DominityElement {
     let animation = this.elem.animate([priorkeyframes, props], {
       duration: duration * 1000,
       easing,
-      fill: "forwards",
+      fill: 'forwards',
     });
     animation.onfinish = () => {
       this.css(props);
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         callback(this);
       }
     };
@@ -775,7 +775,7 @@ export class DominityRouter {
       }
       if (
         routeMap[key].getComponent != undefined &&
-        typeof routeMap[key].getComponent == "function"
+        typeof routeMap[key].getComponent == 'function'
       ) {
         effect2(async () => {
           if (routeobj.viewKey.value) {
@@ -808,15 +808,15 @@ export class DominityRouter {
   }
   start(root) {
     this.root = root;
-    addEventListener("popstate", () => {
+    addEventListener('popstate', () => {
       setTimeout(() => {
         this.assignRoute();
       }, 100);
     });
-    addEventListener("load", async () => {
+    addEventListener('load', async () => {
       setTimeout(() => {
         if (
-          window.location.pathname == "/" ||
+          window.location.pathname == '/' ||
           window.location.pathname == this.defaultAltPath
         ) {
           this.routeTo(this.defaultPath);
@@ -838,11 +838,11 @@ export class DominityRouter {
     });
   }
   routeTo(route) {
-    history.pushState(null, "", route);
+    history.pushState(null, '', route);
     this.assignRoute();
   }
   replaceRoute(route) {
-    history.replaceState(null, "", route);
+    history.replaceState(null, '', route);
     this.assignRoute();
   }
   revalidateRoute() {
@@ -850,10 +850,10 @@ export class DominityRouter {
     this.assignRoute();
   }
   Link({ href, replace, ...attrs }, ...args) {
-    return el("a", { ...attrs }, ...args).on("click", (e) => {
+    return el('a', { ...attrs }, ...args).on('click', (e) => {
       e.preventDefault();
       if (replace != null) {
-        this.replaceRoute(e.target.getAttribute("href"));
+        this.replaceRoute(e.target.getAttribute('href'));
       } else {
         this.routeTo(href);
       }
@@ -873,115 +873,115 @@ export function lazy(path) {
 }
 
 var htmlTags = [
-  "a",
-  "abbr",
-  "address",
-  "area",
-  "article",
-  "aside",
-  "audio",
-  "b",
-  "base",
-  "bdi",
-  "bdo",
-  "blockquote",
-  "body",
-  "br",
-  "button",
-  "canvas",
-  "caption",
-  "cite",
-  "code",
-  "col",
-  "colgroup",
-  "data",
-  "datalist",
-  "dd",
-  "del",
-  "details",
-  "dfn",
-  "dialog",
-  "div",
-  "dl",
-  "dt",
-  "em",
-  "embed",
-  "fieldset",
-  "figcaption",
-  "figure",
-  "footer",
-  "form",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "header",
-  "hr",
-  "html",
-  "i",
-  "iframe",
-  "img",
-  "input",
-  "ins",
-  "kbd",
-  "label",
-  "legend",
-  "li",
-  "link",
-  "main",
-  "map",
-  "mark",
-  "meta",
-  "meter",
-  "nav",
-  "noscript",
-  "object",
-  "ol",
-  "optgroup",
-  "option",
-  "output",
-  "p",
-  "param",
-  "picture",
-  "pre",
-  "progress",
-  "q",
-  "rb",
-  "rp",
-  "rt",
-  "rtc",
-  "s",
-  "samp",
-  "script",
-  "section",
-  "select",
-  "small",
-  "source",
-  "span",
-  "strong",
-  "style",
-  "sub",
-  "summary",
-  "sup",
-  "table",
-  "tbody",
-  "td",
-  "template",
-  "textarea",
-  "tfoot",
-  "th",
-  "thead",
-  "time",
-  "title",
-  "tr",
-  "u",
-  "ul",
-  "var",
-  "video",
-  "wbr",
-  "slot",
+  'a',
+  'abbr',
+  'address',
+  'area',
+  'article',
+  'aside',
+  'audio',
+  'b',
+  'base',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'body',
+  'br',
+  'button',
+  'canvas',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'data',
+  'datalist',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dialog',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'embed',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'header',
+  'hr',
+  'html',
+  'i',
+  'iframe',
+  'img',
+  'input',
+  'ins',
+  'kbd',
+  'label',
+  'legend',
+  'li',
+  'link',
+  'main',
+  'map',
+  'mark',
+  'meta',
+  'meter',
+  'nav',
+  'noscript',
+  'object',
+  'ol',
+  'optgroup',
+  'option',
+  'output',
+  'p',
+  'param',
+  'picture',
+  'pre',
+  'progress',
+  'q',
+  'rb',
+  'rp',
+  'rt',
+  'rtc',
+  's',
+  'samp',
+  'script',
+  'section',
+  'select',
+  'small',
+  'source',
+  'span',
+  'strong',
+  'style',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'template',
+  'textarea',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'title',
+  'tr',
+  'u',
+  'ul',
+  'var',
+  'video',
+  'wbr',
+  'slot',
 ];
 var D = htmlTags.reduce(
   (dobj, tag) => {

@@ -18,7 +18,7 @@ class DominityElement {
    * @param {string|HTMLElement} qry -query or HTMLELement to be converted to DominityInstance
    */
   constructor(qry) {
-    if (typeof qry == "string") {
+    if (typeof qry == 'string') {
       this.elem = document.querySelector(qry);
     } else {
       this.elem = qry;
@@ -59,15 +59,15 @@ class DominityElement {
 
     s.forEach((r) => {
       r.subscribe((t) => {
-        if (typeof t.value != "object") {
+        if (typeof t.value != 'object') {
           this.text(
-            template.replace(new RegExp("{{" + r.name + "}}", "gi"), t.value),
+            template.replace(new RegExp('{{' + r.name + '}}', 'gi'), t.value),
           );
         } else {
           Object.keys(t.value).forEach((k) => {
             this.html(
               template.replace(
-                new RegExp("{{" + r.name + "." + k + "}}", "gi"),
+                new RegExp('{{' + r.name + '.' + k + '}}', 'gi'),
                 t.value[k],
               ),
             );
@@ -105,14 +105,14 @@ class DominityElement {
    * @returns {string|this}
    */
   style(prp, val = null) {
-    if (typeof prp == "string") {
+    if (typeof prp == 'string') {
       if (val == null) {
         return window.getComputedStyle(this.elem, null).getPropertyValue(prp);
       } else {
         this.elem.style[prp] = val;
         return this;
       }
-    } else if (typeof prp == "object") {
+    } else if (typeof prp == 'object') {
       Object.assign(this.elem.style, prp);
       return this;
     }
@@ -155,7 +155,7 @@ class DominityElement {
    * used to conditionally toggle a class
    *
    */
-  bindClass(react, classname, swap = "", byprocess = (v) => v) {
+  bindClass(react, classname, swap = '', byprocess = (v) => v) {
     if (react instanceof DominityReactive) {
       react.subscribe((v) => {
         this.bindClass(byprocess(v.value), classname);
@@ -163,12 +163,12 @@ class DominityElement {
     } else {
       if (react) {
         this.class(classname);
-        if (swap != "") {
+        if (swap != '') {
           if (this.hasClass(swap)) this.removeClass(swap);
         }
       } else {
         this.removeClass(classname);
-        if (swap != "") this.class(swap);
+        if (swap != '') this.class(swap);
       }
     }
     return this;
@@ -192,14 +192,14 @@ class DominityElement {
    * @returns {string|this}
    */
   attr(prp, val = null) {
-    if (typeof prp == "string") {
+    if (typeof prp == 'string') {
       if (val == null) {
         return this.elem.getAttribute(prp);
       } else {
         this.elem.setAttribute(prp, val);
         return this;
       }
-    } else if (typeof prp == "object") {
+    } else if (typeof prp == 'object') {
       let attrs = Object.keys(prp);
       let vals = Object.values(prp);
       attrs.forEach((p, i) => {
@@ -236,7 +236,7 @@ class DominityElement {
    * @param {string} [val]- value of attribute to be toggled
    * @returns {this}
    */
-  toggleAttr(atr, val = "") {
+  toggleAttr(atr, val = '') {
     if (this.hasAttr(atr)) {
       this.removeAttr(atr);
     } else {
@@ -312,7 +312,7 @@ class DominityElement {
    * @returns {this}
    */
   onClick(cb) {
-    this.checkFor("click", (e) => {
+    this.checkFor('click', (e) => {
       cb(this, e);
     });
     return this;
@@ -330,7 +330,7 @@ class DominityElement {
       this.isHolding = true;
       this.timeout = setTimeout((e) => {
         if (this.isHolding) {
-          element.causeEvent(new CustomEvent("hold", { details: e }));
+          element.causeEvent(new CustomEvent('hold', { details: e }));
         }
       }, holdtime * 1000);
     }
@@ -338,10 +338,10 @@ class DominityElement {
       this.isHolding = false;
       clearTimeout(this.timeout);
     }
-    this.checkFor("mousedown", handleDOWN);
-    this.checkFor("touchstart", handleDOWN);
-    this.checkFor("mouseup", handleUP);
-    this.checkFor("touchend", handleUP);
+    this.checkFor('mousedown', handleDOWN);
+    this.checkFor('touchstart', handleDOWN);
+    this.checkFor('mouseup', handleUP);
+    this.checkFor('touchend', handleUP);
     return this;
   }
   //dom manipulation{this}
@@ -392,11 +392,11 @@ class DominityElement {
    * @see -`el()`
    * returned element is the created child so now u are working with this child to go back to working with parent chain `.$end()`
    */
-  _el(typ, txt = "", attrs = {}) {
+  _el(typ, txt = '', attrs = {}) {
     let created = !typ.dominityElem ? this.create(typ) : typ;
     if (!typ.dominityElem) this.addChild(created);
 
-    if (typeof txt == "object") {
+    if (typeof txt == 'object') {
       created.attr(txt);
     } else {
       created.text(txt).attr(attrs);
@@ -496,9 +496,9 @@ class DominityElement {
     return new DominityElement(this.elem.parentNode);
   }
   //indevelopment
-  root(element = "body") {
+  root(element = 'body') {
     let pn = this;
-    while (!pn.matches(element + " > *")) {
+    while (!pn.matches(element + ' > *')) {
       pn = pn.parent();
     }
     return pn;
@@ -562,9 +562,9 @@ class DominityElement {
    * @returns {boolean}
    */
   matches(q) {
-    if (typeof q == "string") {
+    if (typeof q == 'string') {
       return this.elem.matches(q);
-    } else if (typeof q == "object") {
+    } else if (typeof q == 'object') {
       if (q.dominityElem) {
         return q === this;
       } else {
@@ -579,7 +579,7 @@ class DominityElement {
    * @returns {this}
    */
   hide() {
-    this.style("display", "none");
+    this.style('display', 'none');
     return this;
   }
   /**
@@ -587,8 +587,8 @@ class DominityElement {
    * @param {string} [disp] -display property u want the element to be displayed
    * @returns {this}
    */
-  show(disp = "block") {
-    this.style("display", disp);
+  show(disp = 'block') {
+    this.style('display', disp);
     return this;
   }
   /**
@@ -598,12 +598,12 @@ class DominityElement {
    * @returns {this}
    */
   toggleHide(ondisp, onhide) {
-    if (this.style("display") == "none") {
+    if (this.style('display') == 'none') {
       this.show();
       if (ondisp != undefined) {
         ondisp(this);
       }
-    } else if (this.style("display") != "none") {
+    } else if (this.style('display') != 'none') {
       this.hide();
       if (onhide != undefined) {
         onhide(this);
@@ -643,7 +643,7 @@ class DominityElement {
   /**
    * renderIf
    */
-  renderIf(bool, byprocess, parent = $el("body")) {
+  renderIf(bool, byprocess, parent = $el('body')) {
     let elemS = this;
     this.storedParent = parent;
 
@@ -678,7 +678,7 @@ class DominityElement {
     let elemS = this;
     if (list instanceof DominityReactive) {
       list.subscribe((data) => {
-        elemS.html("");
+        elemS.html('');
         data.value.forEach((item, count) => {
           callback(item, elemS, count);
         });
@@ -687,7 +687,7 @@ class DominityElement {
       return this;
     }
     console.error(
-      "DominityError: list item for ._elFor has to be a reactive object made with reactable(",
+      'DominityError: list item for ._elFor has to be a reactive object made with reactable(',
     );
     return this;
   }
@@ -697,9 +697,9 @@ class DominityElement {
    * @returns {this}
    */
   model(target) {
-    let attr = "value";
-    if (this.attr("type") == "checkbox") {
-      attr = "checked";
+    let attr = 'value';
+    if (this.attr('type') == 'checkbox') {
+      attr = 'checked';
     }
 
     if (target instanceof DominityReactive) {
@@ -715,16 +715,16 @@ class DominityElement {
         }
       });
       target.update();
-      this.checkFor("input", () => {
+      this.checkFor('input', () => {
         let val = this.value();
-        if (this.attr("type") == "number") {
-          if (val == "") {
-            val = "0";
+        if (this.attr('type') == 'number') {
+          if (val == '') {
+            val = '0';
           }
 
           val = parseFloat(val);
         }
-        if (attr == "checked") {
+        if (attr == 'checked') {
           if (!(target.value instanceof Array)) {
             if (this.elem.checked) {
               val = true;
@@ -770,7 +770,7 @@ class DominityElement {
    * @param {string} [easing='linear']
    * @param {function} callback - function to run aftere the animation
    */
-  animate(props, duration, easing = "linear", callback) {
+  animate(props, duration, easing = 'linear', callback) {
     let priorkeyframes = {};
     Object.keys(props).forEach((prop) => {
       if (props[prop] instanceof Array) {
@@ -784,11 +784,11 @@ class DominityElement {
     let animation = this.elem.animate([priorkeyframes, props], {
       duration: duration * 1000,
       easing: easing,
-      fill: "forwards",
+      fill: 'forwards',
     });
     animation.onfinish = () => {
       this.style(props);
-      if (typeof callback === "function") {
+      if (typeof callback === 'function') {
         callback(this);
       }
     };
@@ -890,11 +890,11 @@ class DominityElement {
  * @see -`el()`
  * returned element is the created child so now u are working with this child to go back to working with parent chain `.$end()`
  */
-function el(typ, txt = "", attrs = {}, target = document.body) {
+function el(typ, txt = '', attrs = {}, target = document.body) {
   let element = document.createElement(typ);
   target.appendChild(element);
   let delement = new DominityElement(element);
-  if (typeof txt == "object") {
+  if (typeof txt == 'object') {
     delement.attr(txt);
   } else {
     delement.text(txt).attr(attrs);
@@ -939,7 +939,7 @@ class DominityReactive {
   constructor(value) {
     this.value = value;
     this.subscribers = [];
-    this.name = "";
+    this.name = '';
     this.linkLess = [];
   }
   /**
@@ -957,7 +957,7 @@ class DominityReactive {
    * @param {function} callback
    * @param {boolean} autocall - to self update or not
    */
-  subscribe(callback, autocall = "true", isLinked = false) {
+  subscribe(callback, autocall = 'true', isLinked = false) {
     this.subscribers.push(callback);
     if (!isLinked) {
       this.linkLess.push(callback);
@@ -986,8 +986,8 @@ class DominityReactive {
    * @param {string} [prop] -property of main reactable to be gotten
    * @returns {any}
    */
-  get(prop = "") {
-    if (prop != "") {
+  get(prop = '') {
+    if (prop != '') {
       return this.value[prop];
     } else {
       return this.value;
@@ -1039,13 +1039,13 @@ class DominityReactive {
   }
   linkMsg(v) {
     this.value = v;
-    this.update("linkLess");
+    this.update('linkLess');
   }
 
   /**
    * forces all subscribers to be called
    */
-  update(updater = "subscribers") {
+  update(updater = 'subscribers') {
     this[updater].forEach((callback) => {
       callback(this);
     });
@@ -1068,13 +1068,13 @@ function reactable(ini) {
 class DominityRouter {
   constructor(parentLayout) {
     this.path = this.getPath();
-    this.defaultPath = "";
-    this.defaultFile = "/index.html";
+    this.defaultPath = '';
+    this.defaultFile = '/index.html';
     this.routes = [];
     this.firstLoad = 0;
     this.params = {};
 
-    this.parentLayout = parentLayout || el("div", { id: "router-content" });
+    this.parentLayout = parentLayout || el('div', { id: 'router-content' });
     this.backHandler = async () => {
       if (this.firstLoad && this.getPath() != this.defaultFile) {
         await this.handleRoute();
@@ -1084,9 +1084,9 @@ class DominityRouter {
       }
     };
 
-    addEventListener("popstate", this.backHandler);
+    addEventListener('popstate', this.backHandler);
 
-    addEventListener("load", this.backHandler);
+    addEventListener('load', this.backHandler);
   }
   /**
    * assigns an element to a specific route in the dominity router
@@ -1139,7 +1139,7 @@ class DominityRouter {
    * @param {string} route -routename to be routed to
    */
   routeTo(route) {
-    history.pushState(null, "", route);
+    history.pushState(null, '', route);
 
     this.handleRoute();
   }
@@ -1148,7 +1148,7 @@ class DominityRouter {
    * @param {string} route -new path
    */
   replaceRoute(route) {
-    history.replaceState(null, "", route);
+    history.replaceState(null, '', route);
     this.handleRoute();
   }
   /**
@@ -1169,7 +1169,7 @@ class DominityRouter {
    */
 
   Link(text, link, replace = false) {
-    return el("a", text, { tabindex: 0, href: link }).onClick((s, e) => {
+    return el('a', text, { tabindex: 0, href: link }).onClick((s, e) => {
       e.preventDefault();
       if (replace) {
         this.replaceRoute(link);
