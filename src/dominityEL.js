@@ -8,17 +8,17 @@
 */
 
 /**
- * a wrapper for normal DOM elements with additional methods to make it reactive
+ * A wrapper for normal DOM elements with additional methods to make it reactive
  * @class
  */
 class DominityElement {
   /**
-   * creates a new instance of  DOminityElement
+   * Creates a new instance of  DOminityElement
    * @constructor
    * @param {string|HTMLElement} qry -query or HTMLELement to be converted to DominityInstance
    */
   constructor(qry) {
-    if (typeof qry == 'string') {
+    if (typeof qry === 'string') {
       this.elem = document.querySelector(qry);
     } else {
       this.elem = qry;
@@ -29,28 +29,28 @@ class DominityElement {
     }
     this.dominityElem = true;
     this.tag = this.elem.tagName;
-    this.template = false; //for later use to store content
+    this.template = false; //For later use to store content
   }
 
   /**
-   * gets or sets the text content of element
+   * Gets or sets the text content of element
    * @param {string} [val] -value can be left blank to get the current text inside the element
    * @returns {string|this}
    */
   text(val = null) {
     if (val == null) {
       return this.elem.textContent;
-    } else {
+    } 
       if (!this.template) {
-        this.template = val; //stores previous content
+        this.template = val; //Stores previous content
       }
       this.elem.textContent = val;
       return this;
-    }
+    
   }
 
   /**
-   * to make text of an element reactive to reactables
+   * To make text of an element reactive to reactables
    * @param  {...reactive} s- reactables u want the content of this element to stay reactive to
    * @returns {this}
    */
@@ -59,15 +59,15 @@ class DominityElement {
 
     s.forEach((r) => {
       r.subscribe((t) => {
-        if (typeof t.value != 'object') {
+        if (typeof t.value !== 'object') {
           this.text(
-            template.replace(new RegExp('{{' + r.name + '}}', 'gi'), t.value),
+            template.replace(new RegExp(`{{${  r.name  }}}`, 'gi'), t.value),
           );
         } else {
           Object.keys(t.value).forEach((k) => {
             this.html(
               template.replace(
-                new RegExp('{{' + r.name + '.' + k + '}}', 'gi'),
+                new RegExp(`{{${  r.name  }.${  k  }}}`, 'gi'),
                 t.value[k],
               ),
             );
@@ -82,22 +82,22 @@ class DominityElement {
   }
 
   /**
-   * used to set or get the innerHTML of an element
+   * Used to set or get the innerHTML of an element
    * @param {string} [val]- the innerHTML to be set
    * @returns {string|this}
    */
   html(val = null) {
     if (val == null) {
       return this.elem.innerHTML;
-    } else {
+    } 
       this.elem.innerHTML = val;
       return this;
-    }
+    
   }
 
-  //css styling
+  //Css styling
   /**
-   * allows u to get or set CSS properties
+   * Allows u to get or set CSS properties
    * @param {string|object} prp -property value to be get or set
    * @param {string} [val] - value to set the prop
    *
@@ -105,21 +105,21 @@ class DominityElement {
    * @returns {string|this}
    */
   style(prp, val = null) {
-    if (typeof prp == 'string') {
+    if (typeof prp === 'string') {
       if (val == null) {
         return window.getComputedStyle(this.elem, null).getPropertyValue(prp);
-      } else {
+      } 
         this.elem.style[prp] = val;
         return this;
-      }
-    } else if (typeof prp == 'object') {
+      
+    } else if (typeof prp === 'object') {
       Object.assign(this.elem.style, prp);
       return this;
     }
   }
 
-  //class manipulation
-  /**used to set classes to an element
+  //Class manipulation
+  /**Used to set classes to an element
    * @param {...string} className- classes to be set on the element
    * @returns {this}
    */
@@ -130,7 +130,7 @@ class DominityElement {
     return this;
   }
   /**
-   * used to remove classes from an element
+   * Used to remove classes from an element
    * @param {...string} className- classes to be removed
    * @returns {this}
    */
@@ -141,7 +141,7 @@ class DominityElement {
     return this;
   }
   /**
-   * used to toggle classes from an element
+   * Used to toggle classes from an element
    * @param {...string} className- classes to be toggled
    * @returns {this}
    */
@@ -152,7 +152,7 @@ class DominityElement {
     return this;
   }
   /**
-   * used to conditionally toggle a class
+   * Used to conditionally toggle a class
    *
    */
   bindClass(react, classname, swap = '', byprocess = (v) => v) {
@@ -160,22 +160,20 @@ class DominityElement {
       react.subscribe((v) => {
         this.bindClass(byprocess(v.value), classname);
       });
-    } else {
-      if (react) {
+    } else if (react) {
         this.class(classname);
         if (swap != '') {
-          if (this.hasClass(swap)) this.removeClass(swap);
+          if (this.hasClass(swap)) {this.removeClass(swap);}
         }
       } else {
         this.removeClass(classname);
-        if (swap != '') this.class(swap);
+        if (swap != '') {this.class(swap);}
       }
-    }
     return this;
   }
 
   /**
-   * used to check if an element has certain class
+   * Used to check if an element has certain class
    * @param {...string} className- classes to be checked
    * @returns {boolean}
    */
@@ -183,25 +181,25 @@ class DominityElement {
     return this.elem.classList.contains(cls);
   }
 
-  //attribute manipulation
+  //Attribute manipulation
   /**
-   * allows u to get or set attributes of an element
+   * Allows u to get or set attributes of an element
    * @param {string|object} prp -attribute value to be get or set
    * @param {string} [val] - value to set the attribute to
    * you can provide an object with multiple attribute value pairs to bulk set attributes
    * @returns {string|this}
    */
   attr(prp, val = null) {
-    if (typeof prp == 'string') {
+    if (typeof prp === 'string') {
       if (val == null) {
         return this.elem.getAttribute(prp);
-      } else {
+      } 
         this.elem.setAttribute(prp, val);
         return this;
-      }
-    } else if (typeof prp == 'object') {
-      let attrs = Object.keys(prp);
-      let vals = Object.values(prp);
+      
+    } else if (typeof prp === 'object') {
+      const attrs = Object.keys(prp),
+       vals = Object.values(prp);
       attrs.forEach((p, i) => {
         this.attr(p, vals[i]);
       });
@@ -209,7 +207,7 @@ class DominityElement {
     }
   }
   /**
-   * used to check if an element has certain attribute
+   * Used to check if an element has certain attribute
    * @param {...string} attributeName- attribute to be checked
    * @returns {boolean}
    */
@@ -221,7 +219,7 @@ class DominityElement {
     }
   }
   /**
-   * used to remove attbutes from an element
+   * Used to remove attbutes from an element
    * @param {...string} attributes-attributes to be removed
    * @returns {this}
    */
@@ -231,7 +229,7 @@ class DominityElement {
     });
   }
   /**
-   * used to toggle attribute of an element
+   * Used to toggle attribute of an element
    * @param {string} atr- attribute to be toggled
    * @param {string} [val]- value of attribute to be toggled
    * @returns {this}
@@ -245,23 +243,23 @@ class DominityElement {
     return this;
   }
 
-  //value and input methods-------------------
+  //Value and input methods-------------------
   /**
-   * used to set or get value of an input element
+   * Used to set or get value of an input element
    * @param {any} val
    * @returns {any}
    */
   value(val = null) {
     if (val == null) {
       return this.elem.value;
-    } else {
+    } 
       this.elem.value = val;
-    }
+    
   }
 
-  //events manipulation---------------------------
+  //Events manipulation---------------------------
   /**
-   * checks for an event and adds an event listener
+   * Checks for an event and adds an event listener
    * @param {string} e- eventname to be checked
    * @param {function} cb -callback function
    * @param {boolean} bub -event bubling
@@ -272,7 +270,7 @@ class DominityElement {
     return this;
   }
   /**
-   * stops listening for an event
+   * Stops listening for an event
    * @param {Event} ev -event
    * @param {function} func -function
    * @param {boolean} bub -bubling
@@ -283,7 +281,7 @@ class DominityElement {
     return this;
   }
   /**
-   * triggers a new event
+   * Triggers a new event
    * @param {any} ev -event to be dispatched
    * @returns {this}
    */
@@ -293,7 +291,7 @@ class DominityElement {
     return this;
   }
   /**
-   * triggers a custom event directly
+   * Triggers a custom event directly
    * @param {string} name -name of the event
    * @param {object} data -to be sent with the event
    */
@@ -307,7 +305,7 @@ class DominityElement {
   }
 
   /**
-   * checks for click events
+   * Checks for click events
    * @param {function} cb -call back function
    * @returns {this}
    */
@@ -319,7 +317,7 @@ class DominityElement {
   }
 
   /**
-   * enables the ability to listen for 'hold' events on the element
+   * Enables the ability to listen for 'hold' events on the element
    * @param {number} [holdtime] -time delay for click and hold to be triggered
    * @returns {this}
    */
@@ -344,9 +342,9 @@ class DominityElement {
     this.checkFor('touchend', handleUP);
     return this;
   }
-  //dom manipulation{this}
+  //Dom manipulation{this}
   /**
-   * appends the element to another element provided
+   * Appends the element to another element provided
    * @param {DominityElement|HTMLELement} elm -parent element to add to
    * @returns {this}
    */
@@ -360,7 +358,7 @@ class DominityElement {
     return this;
   }
   /**
-   * inserts this element to another element at a certin position
+   * Inserts this element to another element at a certin position
    * @param {DominityElement|HTMLELement} elm-parent element to add to
    * @param {string} placement -positon from beforebegin,afterbegin,beforeend,afterend etc
    * @see `insertHtml()`
@@ -376,7 +374,7 @@ class DominityElement {
     }
   }
   /**
-   * removes the element from the DOM tree
+   * Removes the element from the DOM tree
    * @returns {this}
    */
   remove() {
@@ -384,7 +382,7 @@ class DominityElement {
     return this;
   }
   /**
-   * creates a child element and addes it
+   * Creates a child element and addes it
    * @param {string} typ -valid html tagname of element
    * @param {string|object} txt-text inside the child element (if element doesnt have any text u can give an object of attribute here)
    * @param {object} attrs -objects with attribute value pairs
@@ -393,10 +391,10 @@ class DominityElement {
    * returned element is the created child so now u are working with this child to go back to working with parent chain `.$end()`
    */
   _el(typ, txt = '', attrs = {}) {
-    let created = !typ.dominityElem ? this.create(typ) : typ;
-    if (!typ.dominityElem) this.addChild(created);
+    const created = !typ.dominityElem ? this.create(typ) : typ;
+    if (!typ.dominityElem) {this.addChild(created);}
 
-    if (typeof txt == 'object') {
+    if (typeof txt === 'object') {
       created.attr(txt);
     } else {
       created.text(txt).attr(attrs);
@@ -406,7 +404,7 @@ class DominityElement {
   }
 
   /**
-   * creates a child element
+   * Creates a child element
    * @param {*} el
    * @returns {DominityElement} -returned is an instance of child object to go back to working with parent chain `.$end()`
    */
@@ -416,7 +414,7 @@ class DominityElement {
     return this.addedChild;
   }
   /**
-   * adds children to the element , multiple child elements can be added seperated by comma
+   * Adds children to the element , multiple child elements can be added seperated by comma
    * @param {...DominityElement}
    * @returns {this}
    */
@@ -432,7 +430,7 @@ class DominityElement {
     return this;
   }
   /**
-   * inserts children to the element
+   * Inserts children to the element
    * @param {string} placement -specifies position to be placed
    * @param {HTMLElement} nod -element to be placed
    * @returns {this}
@@ -442,7 +440,7 @@ class DominityElement {
     return this;
   }
   /**
-   * removes children to the element , multiple child elements can be removed seperated by comma
+   * Removes children to the element , multiple child elements can be removed seperated by comma
    * @returns {this}
    */
   removeChild() {
@@ -463,7 +461,7 @@ class DominityElement {
     return this;
   }
   /**
-   * finds a child by query
+   * Finds a child by query
    * @param {string} q- query to find child
    * @returns {DominityElement} -returns the child if found
    */
@@ -471,7 +469,7 @@ class DominityElement {
     return new DominityElement(this.elem.querySelector(q));
   }
   /**
-   * gets all the children that matches the query
+   * Gets all the children that matches the query
    * @param {string} q -query to find child
    * @returns {array} -returns array of dominityelements
    */
@@ -481,7 +479,7 @@ class DominityElement {
     );
   }
   /**
-   * gets child of element by index
+   * Gets child of element by index
    * @param {index} pos
    * @returns {DominityElement} -returns the child
    */
@@ -495,16 +493,16 @@ class DominityElement {
   parent() {
     return new DominityElement(this.elem.parentNode);
   }
-  //indevelopment
+  //Indevelopment
   root(element = 'body') {
     let pn = this;
-    while (!pn.matches(element + ' > *')) {
+    while (!pn.matches(`${element  } > *`)) {
       pn = pn.parent();
     }
     return pn;
   }
   /**
-   * returns the parent instance
+   * Returns the parent instance
    *
    * @returns {DominityElement} -returns parent so u can go back to working with parent element
    */
@@ -513,21 +511,21 @@ class DominityElement {
   }
 
   /**
-   * returns the next element in the tree
+   * Returns the next element in the tree
    * @returns {DominityElement}
    */
   next() {
     return new DominityElement(this.elem.nextElementSibling);
   }
   /**
-   * returns the previous element in the tree
+   * Returns the previous element in the tree
    * @returns {DominityElement}
    */
   previous() {
     return new DominityElement(this.elem.previousElementSibling);
   }
   /**
-   * clones an element
+   * Clones an element
    * @param {boolean} deep -if true a deep clone is created
    * @returns {DominityElement} -clone is returned
    */
@@ -536,7 +534,7 @@ class DominityElement {
   }
 
   /**
-   * creates a component instance from contnet of template tag
+   * Creates a component instance from contnet of template tag
    */
   asComponent() {
     return this.cloneContent(
@@ -545,37 +543,37 @@ class DominityElement {
   }
 
   /**
-   * checks if the element is contained as a child in this element
+   * Checks if the element is contained as a child in this element
    * @param {HTMLELement|DominityElement} nod -child to be checked for
    * @returns {boolean} -truth or false
    */
   contains(nod) {
     if (nod.dominityElem) {
       return this.elem.contains(nod.elem);
-    } else {
+    } 
       return this.elem.contains(nod);
-    }
+    
   }
   /**
-   * checks if the element matches a specific query or an element
+   * Checks if the element matches a specific query or an element
    * @param {string} q- query to be matched
    * @returns {boolean}
    */
   matches(q) {
-    if (typeof q == 'string') {
+    if (typeof q === 'string') {
       return this.elem.matches(q);
-    } else if (typeof q == 'object') {
+    } else if (typeof q === 'object') {
       if (q.dominityElem) {
         return q === this;
-      } else {
+      } 
         return q === this.elem;
-      }
+      
     }
   }
 
-  //appearance
+  //Appearance
   /**
-   * hides an element using CSS
+   * Hides an element using CSS
    * @returns {this}
    */
   hide() {
@@ -583,7 +581,7 @@ class DominityElement {
     return this;
   }
   /**
-   * shows the element hidden using hide()
+   * Shows the element hidden using hide()
    * @param {string} [disp] -display property u want the element to be displayed
    * @returns {this}
    */
@@ -592,7 +590,7 @@ class DominityElement {
     return this;
   }
   /**
-   * toggles hide and show
+   * Toggles hide and show
    * @param {function} [ondisp] -callback to be called when displayed
    * @param {function} [onhide] -callback to be called when hidden
    * @returns {this}
@@ -614,12 +612,12 @@ class DominityElement {
   }
 
   /**
-   * allows to show or hide an element depending on a reactable
+   * Allows to show or hide an element depending on a reactable
    * @param {reactive|boolean} bool - expression or reactable
    * @returns {this}
    */
   showIf(bool, byprocess) {
-    let elemS = this;
+    const elemS = this;
     if (bool instanceof DominityReactive) {
       bool.subscribe((data) => {
         let condition = data.value;
@@ -641,10 +639,10 @@ class DominityElement {
     return this;
   }
   /**
-   * renderIf
+   * RenderIf
    */
   renderIf(bool, byprocess, parent = $el('body')) {
-    let elemS = this;
+    const elemS = this;
     this.storedParent = parent;
 
     if (bool instanceof DominityReactive) {
@@ -675,7 +673,7 @@ class DominityElement {
    * @returns {this}
    */
   loops(list, callback) {
-    let elemS = this;
+    const elemS = this;
     if (list instanceof DominityReactive) {
       list.subscribe((data) => {
         elemS.html('');
@@ -692,7 +690,7 @@ class DominityElement {
     return this;
   }
   /**
-   * for inputs/select allows to 2 way bind value to a reactable
+   * For inputs/select allows to 2 way bind value to a reactable
    * @param {reactive|any} target
    * @returns {this}
    */
@@ -706,13 +704,11 @@ class DominityElement {
       target.subscribe((d) => {
         if (!(d.value instanceof Array)) {
           this.elem[attr] = d.value;
-        } else {
-          if (d.value.includes(this.elem.name)) {
+        } else if (d.value.includes(this.elem.name)) {
             this.elem[attr] = true;
           } else {
             this.elem[attr] = false;
           }
-        }
       });
       target.update();
       this.checkFor('input', () => {
@@ -731,13 +727,11 @@ class DominityElement {
             } else {
               val = false;
             }
-          } else {
-            if (this.elem.checked) {
+          } else if (this.elem.checked) {
               val = [...target.value, this.elem.name];
             } else {
               val = target.value.filter((t) => t != this.elem.name);
             }
-          }
         }
 
         target.set(val);
@@ -748,7 +742,7 @@ class DominityElement {
   }
 
   /**
-   * allows u to attach a function that operates on the element when reactive value updates
+   * Allows u to attach a function that operates on the element when reactive value updates
    * @param {DominityReactive} target
    * @param {function} func
    * @returns {DominityElement}
@@ -764,14 +758,14 @@ class DominityElement {
   }
 
   /**
-   * animate elements with animate method
+   * Animate elements with animate method
    * @param {object} props
    * @param {number} duration
    * @param {string} [easing='linear']
    * @param {function} callback - function to run aftere the animation
    */
   animate(props, duration, easing = 'linear', callback) {
-    let priorkeyframes = {};
+    const priorkeyframes = {};
     Object.keys(props).forEach((prop) => {
       if (props[prop] instanceof Array) {
         priorkeyframes[prop] = props[prop][0];
@@ -781,9 +775,9 @@ class DominityElement {
       }
     });
 
-    let animation = this.elem.animate([priorkeyframes, props], {
+    const animation = this.elem.animate([priorkeyframes, props], {
       duration: duration * 1000,
-      easing: easing,
+      easing,
       fill: 'forwards',
     });
     animation.onfinish = () => {
@@ -796,9 +790,9 @@ class DominityElement {
     return this;
   }
 
-  //actions
+  //Actions
   /**
-   * focus or blurs an element depending on val true or not
+   * Focus or blurs an element depending on val true or not
    * @param {boolean} val -if true focuses else blurs
    * @returns {this}
    */
@@ -811,7 +805,7 @@ class DominityElement {
     return this;
   }
   /**
-   * clicks an element
+   * Clicks an element
    * @returns {this}
    */
   click() {
@@ -820,7 +814,7 @@ class DominityElement {
     return this;
   }
   /**
-   * scrolls to the element
+   * Scrolls to the element
    * @param {boolean|object} [s]- options/scroll
    * @see[scrollIntoView](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView)
    * @returns {this}
@@ -830,7 +824,7 @@ class DominityElement {
     return this;
   }
   /**
-   * gets the scroll position and size of the element
+   * Gets the scroll position and size of the element
    * @returns {object}
    */
   getScrollInfo() {
@@ -843,14 +837,14 @@ class DominityElement {
   }
 
   /**
-   * returns elements size
+   * Returns elements size
    * @returns {getBoundingClientRect}
    */
   getSizeInfo() {
     return this.elem.getBoundingClientRect();
   }
   /**
-   * requests/cancels the element to be made fullscreen(cross browser compatible)
+   * Requests/cancels the element to be made fullscreen(cross browser compatible)
    * @param {boolean} val - if true to set an element to fullscreen ,false to make it normal
    * @returns {this}
    */
@@ -863,25 +857,23 @@ class DominityElement {
       } else if (this.elem.msRequestFullScreen) {
         this.elem.msRequestFullscreen();
       }
-    } else {
-      if (this.elem.exitFullScreen) {
+    } else if (this.elem.exitFullScreen) {
         this.elem.exitFullScreen();
       } else if (this.elem.webkitExitFullscreen) {
         this.elem.webkitExitFullscreen();
       } else if (this.elem.msExitFullScreen) {
         this.elem.msExitFullscreen();
       }
-    }
 
     return this;
   }
 }
 
-//fuctions-------------------------
+//Fuctions-------------------------
 
-//el
+//El
 /**
- * creates a new element
+ * Creates a new element
  * @param {string} typ -valid html tagname of element
  * @param {string|object} txt-text inside the child element (if element doesnt have any text u can give an object of attribute here)
  * @param {object} attrs -objects with attribute value pairs
@@ -891,10 +883,10 @@ class DominityElement {
  * returned element is the created child so now u are working with this child to go back to working with parent chain `.$end()`
  */
 function el(typ, txt = '', attrs = {}, target = document.body) {
-  let element = document.createElement(typ);
+  const element = document.createElement(typ);
   target.appendChild(element);
-  let delement = new DominityElement(element);
-  if (typeof txt == 'object') {
+  const delement = new DominityElement(element);
+  if (typeof txt === 'object') {
     delement.attr(txt);
   } else {
     delement.text(txt).attr(attrs);
@@ -902,9 +894,9 @@ function el(typ, txt = '', attrs = {}, target = document.body) {
   return delement;
 }
 
-//find
+//Find
 /**
- * finds and return the element that matches the query
+ * Finds and return the element that matches the query
  * @param {string} qry -query to be matched
  * @returns {DominityElement}
  */
@@ -912,12 +904,12 @@ function $el(qry) {
   return new DominityElement(qry);
 }
 /**
- * finds and returns all elements that match the query
+ * Finds and returns all elements that match the query
  * @param {string} qry -query to be matched
  * @returns {DominityElement[]}
  */
 function $$el(qry) {
-  let elemArr = [];
+  const elemArr = [];
   document.querySelectorAll(qry).forEach((e) => {
     elemArr.push(new DominityElement(e));
   });
@@ -925,7 +917,7 @@ function $$el(qry) {
   return elemArr;
 }
 
-//reactable
+//Reactable
 /**
  * @class
  * a wrapper to hold reactive variables that can trigger subscribers
@@ -933,7 +925,7 @@ function $$el(qry) {
  */
 class DominityReactive {
   /**
-   * any variable to be made reactive
+   * Any variable to be made reactive
    * @param {any} value
    */
   constructor(value) {
@@ -943,7 +935,7 @@ class DominityReactive {
     this.linkLess = [];
   }
   /**
-   * this is the name to be used inside `{{}}` when paired with `reactTo()`
+   * This is the name to be used inside `{{}}` when paired with `reactTo()`
    * @param {string} na
    * @returns {this}
    */
@@ -953,7 +945,7 @@ class DominityReactive {
     return this;
   }
   /**
-   * allows u to add subscriber functions , these functions are triggered whenever the value of reactable is updated
+   * Allows u to add subscriber functions , these functions are triggered whenever the value of reactable is updated
    * @param {function} callback
    * @param {boolean} autocall - to self update or not
    */
@@ -967,14 +959,14 @@ class DominityReactive {
     }
   }
   /**
-   * allows you to get rid of a subscriber function
+   * Allows you to get rid of a subscriber function
    * @param {function} callback -function to be removed
    */
   unsubscribe(callback) {
     this.subscribers.pop(subscribers.indexOf(callback));
   }
   /**
-   * used to set/update the value of the reactable
+   * Used to set/update the value of the reactable
    * @param {any} newval
    */
   set(newval) {
@@ -982,19 +974,19 @@ class DominityReactive {
     this.update();
   }
   /**
-   * returns the value of reactable same as `reactable.value`
+   * Returns the value of reactable same as `reactable.value`
    * @param {string} [prop] -property of main reactable to be gotten
    * @returns {any}
    */
   get(prop = '') {
     if (prop != '') {
       return this.value[prop];
-    } else {
+    } 
       return this.value;
-    }
+    
   }
   /**
-   * sets a property of an object reactable
+   * Sets a property of an object reactable
    * @param {string} prop -property to be set
    * @param {any} val -value to be set
    */
@@ -1004,7 +996,7 @@ class DominityReactive {
   }
 
   /**
-   * makes the reactable's vlaue dependant on other reactables
+   * Makes the reactable's vlaue dependant on other reactables
    * @param {reactive} reaction -whichever reactable u want it to be dependant on
    * @param {function} callback -this function is used to modify the dependancy ,u can run a process on dependant reactables value and the return of that is treated as the value of this reactable
    * @returns {this}
@@ -1030,7 +1022,7 @@ class DominityReactive {
     parent.subscribe(() => {
       this.linkMsg(selfrelation(parent.value));
     }, true);
-    let parentLink = (v) => {
+    const parentLink = (v) => {
       parent.linkMsg(parentrelation(v.value));
     };
     this.subscribe(parentLink, false, true);
@@ -1043,7 +1035,7 @@ class DominityReactive {
   }
 
   /**
-   * forces all subscribers to be called
+   * Forces all subscribers to be called
    */
   update(updater = 'subscribers') {
     this[updater].forEach((callback) => {
@@ -1052,7 +1044,7 @@ class DominityReactive {
   }
 }
 /**
- * creates and returns a new instance of reactive
+ * Creates and returns a new instance of reactive
  * @param {any} ini -value of the reactable
  * @returns {reactive} -reactive is returned
  */
@@ -1089,24 +1081,24 @@ class DominityRouter {
     addEventListener('load', this.backHandler);
   }
   /**
-   * assigns an element to a specific route in the dominity router
+   * Assigns an element to a specific route in the dominity router
    * @param {string} route- route path name
    * @param {DominityElement} pageElement -component to be routed to
    * @param {*} [callback] - a function callback after routing optional
    * @returns {this}
    */
   register(route, pageElement, callback = () => {}) {
-    let config = {
-      route: route,
+    const config = {
+      route,
       elem: pageElement,
-      callback: callback,
+      callback,
       routeKey: reactable(false),
       element: { remove: () => {} },
     };
     this.routes.push(config);
     config.routeKey.subscribe((v) => {
-      let elem = () => {
-        let r = config.elem(this);
+      const elem = () => {
+        const r = config.elem(this);
         config.element = r;
         return r;
       };
@@ -1135,7 +1127,7 @@ class DominityRouter {
     });
   }
   /**
-   * routes to a specific route
+   * Routes to a specific route
    * @param {string} route -routename to be routed to
    */
   routeTo(route) {
@@ -1144,7 +1136,7 @@ class DominityRouter {
     this.handleRoute();
   }
   /**
-   * replaces the current path with another
+   * Replaces the current path with another
    * @param {string} route -new path
    */
   replaceRoute(route) {
@@ -1152,7 +1144,7 @@ class DominityRouter {
     this.handleRoute();
   }
   /**
-   * returns the search url prameters
+   * Returns the search url prameters
    * @returns {object} object containig searchParams
    */
   getQueries() {
@@ -1161,7 +1153,7 @@ class DominityRouter {
     );
   }
   /**
-   * a router link component
+   * A router link component
    * @param {string} text - text to be placed inside
    * @param {string} link -path
    * @param {boolean} replace -to replace or not off by default
