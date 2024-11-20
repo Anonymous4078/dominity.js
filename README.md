@@ -6,10 +6,10 @@
 
 ### Introduction
 
-Dominity is a simple and lightweight JavaScript library designed to help you write html like syntax in js to make reusable reactive components.
+Dominity is a simple and lightweight JavaScript library designed to help you write HTML like syntax in JavaScript to make reusable reactive components.
 
-Its reactive hence allows you to automatically update the elements contents when the state changes.
-Its coupled with a client side router as well.
+It's reactive and hence allows you to automatically update the elements contents when the state changes.
+It's coupled with a client side router as well.
 
 ### Usage
 
@@ -19,11 +19,11 @@ You can start a new dominity project easily by importing straight from a cdn
 import D from "https://esm.sh/dominity@latest";
 ```
 
-Its final bundle size is just around 6-7 Kb.
+Its final bundle size is just around `6-7` Kb.
 
 ## Adding to an Existing Project
 
-You can add dominity to an existing project by installing it form npm and using it
+You can add dominity to an existing project by installing it from npm and using it.
 
 ```
 npm i dominity@latest
@@ -35,7 +35,7 @@ import { state } from "dominity";
 
 ## Using with Vite
 
-To use with vite either create vanilla template and add the package manually or use this command to get a starter project setup.
+To use with vite, either create vanilla template and add the package manually or use this command to get a starter project setup.
 
 ```
 npx degit https://github.com/atoms19/dominity-vite-app
@@ -45,11 +45,11 @@ cd into the project directory and do `npm i` and `npm run dev` to start developi
 
 ### Mission
 
-The syntax is very similiar to <a href="https://hyperscript.org/">Hyperscript</a> therefore there is no learning curve here, any function that returns this kinda hyperscript is viewed as a component , and calling the function and passing it as an argument creates compositioning of elements , theres reactivity sprinkled througout the project in the form of signals and helper methods to get things going
+The syntax is very similiar to <a href="https://hyperscript.org/">Hyperscript</a> therefore there is no learning curve here, any function that returns this kinda hyperscript is viewed as a component, and calling the function and passing it as an argument creates compositioning of elements, there's reactivity sprinkled throughout the project in the form of signals and helper methods to get things going.
 
 ### Basics
 
-Dominity gives u functions that create HTML elements that's it
+Dominity gives you functions that create HTML elements that's it.
 
 ```js
 import { p, div } from "dominity";
@@ -66,9 +66,9 @@ lorem ipsum do
 );
 ```
 
-As can see from the above example the function named div creates a division and paragraph elements and mounts it to the body.
+As you can see in the above example the `div()` function creates a division and paragraph elements and mounts it to the body.
 
-Objects with key value pairs passed in, are considered attributes and strings are considered as text inside the element, you can even pass in other hyperscript functions or components to create child elements
+Objects with key value pairs passed in are considered attributes and strings are considered as text inside the element, you can even pass in other hyperscript functions or components to create child elements.
 
 ```js
 ul(
@@ -78,11 +78,12 @@ ul(
 );
 ```
 
-> they are arguments so dont foreget the commas
+> [!NOTE]  
+> They are arguments so don't foreget the commas.
 
 #### Simplified Componentization
 
-Dominity allows us to create components with ease by encapsulating Dominity code in a function. This approach allows developers to create modular and maintainable code structures with ease, utilizing function parameters as component prop, a dominity componenet is any function that returns elements made with dominity
+Dominity allows us to create components with ease by encapsulating Dominity code in a function. This approach allows developers to create modular and maintainable code structures with ease, utilizing function parameters as component prop, a dominity component is any function that returns elements made with dominity.
 
 A simple button component
 
@@ -152,7 +153,7 @@ Given below is an example of a simple counter using dominity.
 function Counter() {
   let count = state(0);
 
-  rerurn div(
+  return div(
     p("count:",count),
     button("increment").on('click',() => {
       count.value=count.value+1;
@@ -173,7 +174,7 @@ let nameAsList = derived(() => {
 });
 ```
 
-Each time name updates its derived value will also get updated automatically.
+Each time `name` updates its derived value will also get updated automatically.
 
 ### Examples
 
@@ -216,7 +217,7 @@ function filterSearch() {
 }
 ```
 
-The above example uses a derived state using`.derived()`.
+The above example uses a derived state using `.derived()`.
 
 An interesting method of dominity search element is `.model()` which allows you to actively update a state whenever its value changes and vice versa.
 
@@ -227,9 +228,6 @@ Here you can see the derived iterable state filtered items is rendered as a list
 ```js
 let taskname=state('')
 let tasks=state(JSON.parse(localStorage.tasks))
-
-
-
 
 form(
   fieldset({
@@ -361,17 +359,14 @@ getComponent:aboutComponent
 r.start(document.body) //initialises the routing at document.body must for this method
 ```
 
-each component would recive the router instance as the parameter automatically , and u wont have to import the router to get `r.Link`,`r.queries` etc
+Each component would receive the router instance as the parameter automatically, and you wont have to import the router to get `r.Link`, `r.queries` etc
 
 ```js
-
-export default function homeComponent(r){
+export default function homeComponent(r) {
   return div(
-      r.Link({href:'/about'},"about page")
-  , r.Link({href:'/marketing'},"market page")
-  ....
+      r.Link({ href:'/about' }, "about page"),
+      r.Link({ href:'/marketing' }, "market page")
+      ...
   )
-}
-
-
+};
 ```
