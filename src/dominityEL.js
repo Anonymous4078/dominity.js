@@ -1,25 +1,15 @@
-/*Dominity.js
-==================================================>
--DominityELement (create,el,_el,$el,$$el)
--Reactive   (reactable)
--DominityRouter
-----------
-
-*/
-
-
 /**
- * a wrapper for normal DOM elements with additional methods to make it reactive 
+ * A wrapper for normal `DOM` elements with additional methods to make it reactive.
  * @class
  */
-class DominityElement{ 
+class DominityElement { 
   /**
-   * creates a new instance of  DOminityElement
+   * Creates a new instance of `DominityElement`
    * @constructor
-   * @param {string|HTMLElement} qry -query or HTMLELement to be converted to DominityInstance
+   * @param {string|HTMLElement} query The query or `HTMLELement` to be converted to `DominityInstance`.
    */
-    constructor (qry){ 
-      if(typeof qry=='string'){ 
+    constructor (query) { 
+      if (typeof query === 'string'){ 
         this.elem=document.querySelector(qry)
         
       }else{ 
