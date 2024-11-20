@@ -1,252 +1,251 @@
 // SignalsF.ts-------------------------------------the following code is for states keep scrolling without paying attention till u see a heart emoji---------------
 const startBatch = function () {
-  batchDepth++;
-},
- endBatch = function () {
-  if (batchDepth > 1) {
-    batchDepth--;
-    return;
-  }
-  let error,
-   hasError = false;
-  while (batchedEffect !== undefined) {
-    let effect = batchedEffect;
-    batchedEffect = undefined;
-    batchIteration++;
-    while (effect !== undefined) {
-      const next = effect._nextBatchedEffect;
-      effect._nextBatchedEffect = undefined;
-      effect._flags &= ~NOTIFIED;
-      if (!(effect._flags & DISPOSED) && needsToRecompute(effect)) {
-        try {
-          effect._callback();
-        } catch (err) {
-          if (!hasError) {
-            error = err;
-            hasError = true;
+    batchDepth++;
+  },
+  endBatch = function () {
+    if (batchDepth > 1) {
+      batchDepth--;
+      return;
+    }
+    let error,
+      hasError = false;
+    while (batchedEffect !== undefined) {
+      let effect = batchedEffect;
+      batchedEffect = undefined;
+      batchIteration++;
+      while (effect !== undefined) {
+        const next = effect._nextBatchedEffect;
+        effect._nextBatchedEffect = undefined;
+        effect._flags &= ~NOTIFIED;
+        if (!(effect._flags & DISPOSED) && needsToRecompute(effect)) {
+          try {
+            effect._callback();
+          } catch (err) {
+            if (!hasError) {
+              error = err;
+              hasError = true;
+            }
           }
         }
+        effect = next;
       }
-      effect = next;
     }
-  }
-  batchIteration = 0;
-  batchDepth--;
-  if (hasError) {
-    throw error;
-  }
-},
- batch = function (fn) {
-  if (batchDepth > 0) {
-    return fn();
-  }
-  startBatch();
-  try {
-    return fn();
-  } finally {
-    endBatch();
-  }
-},
- untracked = function (fn) {
-  const prevContext = evalContext;
-  evalContext = undefined;
-  try {
-    return fn();
-  } finally {
-    evalContext = prevContext;
-  }
-},
- addDependency = function (signal) {
-  if (evalContext === undefined) {
-    return;
-  }
-  let node = signal._node;
-  if (node === undefined || node._target !== evalContext) {
-    node = {
-      _version: 0,
-      _source: signal,
-      _prevSource: evalContext._sources,
-      _nextSource: undefined,
-      _target: evalContext,
-      _prevTarget: undefined,
-      _nextTarget: undefined,
-      _rollbackNode: node,
-    };
-    if (evalContext._sources !== undefined) {
-      evalContext._sources._nextSource = node;
+    batchIteration = 0;
+    batchDepth--;
+    if (hasError) {
+      throw error;
     }
-    evalContext._sources = node;
-    signal._node = node;
-    if (evalContext._flags & TRACKING) {
-      signal._subscribe(node);
+  },
+  batch = function (fn) {
+    if (batchDepth > 0) {
+      return fn();
     }
-    return node;
-  } else if (node._version === -1) {
-    node._version = 0;
-    if (node._nextSource !== undefined) {
-      node._nextSource._prevSource = node._prevSource;
-      if (node._prevSource !== undefined) {
-        node._prevSource._nextSource = node._nextSource;
+    startBatch();
+    try {
+      return fn();
+    } finally {
+      endBatch();
+    }
+  },
+  untracked = function (fn) {
+    const prevContext = evalContext;
+    evalContext = undefined;
+    try {
+      return fn();
+    } finally {
+      evalContext = prevContext;
+    }
+  },
+  addDependency = function (signal) {
+    if (evalContext === undefined) {
+      return;
+    }
+    let node = signal._node;
+    if (node === undefined || node._target !== evalContext) {
+      node = {
+        _version: 0,
+        _source: signal,
+        _prevSource: evalContext._sources,
+        _nextSource: undefined,
+        _target: evalContext,
+        _prevTarget: undefined,
+        _nextTarget: undefined,
+        _rollbackNode: node,
+      };
+      if (evalContext._sources !== undefined) {
+        evalContext._sources._nextSource = node;
       }
-      node._prevSource = evalContext._sources;
-      node._nextSource = undefined;
-      evalContext._sources._nextSource = node;
       evalContext._sources = node;
+      signal._node = node;
+      if (evalContext._flags & TRACKING) {
+        signal._subscribe(node);
+      }
+      return node;
+    } else if (node._version === -1) {
+      node._version = 0;
+      if (node._nextSource !== undefined) {
+        node._nextSource._prevSource = node._prevSource;
+        if (node._prevSource !== undefined) {
+          node._prevSource._nextSource = node._nextSource;
+        }
+        node._prevSource = evalContext._sources;
+        node._nextSource = undefined;
+        evalContext._sources._nextSource = node;
+        evalContext._sources = node;
+      }
+      return node;
     }
-    return node;
-  }
-  
-},
- Signal = function (value) {
-  this._value = value;
-  this._version = 0;
-  this._node = undefined;
-  this._targets = undefined;
-};
+  },
+  Signal = function (value) {
+    this._value = value;
+    this._version = 0;
+    this._node = undefined;
+    this._targets = undefined;
+  };
 function signal(value) {
   return new Signal(value);
 }
 var needsToRecompute = function (target) {
-  for (
-    let node = target._sources;
-    node !== undefined;
-    node = node._nextSource
-  ) {
-    if (
-      node._source._version !== node._version ||
-      !node._source._refresh() ||
-      node._source._version !== node._version
+    for (
+      let node = target._sources;
+      node !== undefined;
+      node = node._nextSource
     ) {
-      return true;
+      if (
+        node._source._version !== node._version ||
+        !node._source._refresh() ||
+        node._source._version !== node._version
+      ) {
+        return true;
+      }
     }
-  }
-  return false;
-},
- prepareSources = function (target) {
-  for (
-    let node = target._sources;
-    node !== undefined;
-    node = node._nextSource
-  ) {
-    const rollbackNode = node._source._node;
-    if (rollbackNode !== undefined) {
-      node._rollbackNode = rollbackNode;
+    return false;
+  },
+  prepareSources = function (target) {
+    for (
+      let node = target._sources;
+      node !== undefined;
+      node = node._nextSource
+    ) {
+      const rollbackNode = node._source._node;
+      if (rollbackNode !== undefined) {
+        node._rollbackNode = rollbackNode;
+      }
+      node._source._node = node;
+      node._version = -1;
+      if (node._nextSource === undefined) {
+        target._sources = node;
+        break;
+      }
     }
-    node._source._node = node;
-    node._version = -1;
-    if (node._nextSource === undefined) {
-      target._sources = node;
-      break;
+  },
+  cleanupSources = function (target) {
+    let node = target._sources,
+      head;
+    while (node !== undefined) {
+      const prev = node._prevSource;
+      if (node._version === -1) {
+        node._source._unsubscribe(node);
+        if (prev !== undefined) {
+          prev._nextSource = node._nextSource;
+        }
+        if (node._nextSource !== undefined) {
+          node._nextSource._prevSource = prev;
+        }
+      } else {
+        head = node;
+      }
+      node._source._node = node._rollbackNode;
+      if (node._rollbackNode !== undefined) {
+        node._rollbackNode = undefined;
+      }
+      node = prev;
     }
-  }
-},
- cleanupSources = function (target) {
-  let node = target._sources,
-   head;
-  while (node !== undefined) {
-    const prev = node._prevSource;
-    if (node._version === -1) {
+    target._sources = head;
+  },
+  Computed = function (fn) {
+    Signal.call(this, undefined);
+    this._fn = fn;
+    this._sources = undefined;
+    this._globalVersion = globalVersion - 1;
+    this._flags = OUTDATED;
+  },
+  computed = function (fn) {
+    return new Computed(fn);
+  },
+  cleanupEffect = function (effect) {
+    const cleanup = effect._cleanup;
+    effect._cleanup = undefined;
+    if (typeof cleanup === 'function') {
+      startBatch();
+      const prevContext = evalContext;
+      evalContext = undefined;
+      try {
+        cleanup();
+      } catch (err) {
+        effect._flags &= ~RUNNING;
+        effect._flags |= DISPOSED;
+        disposeEffect(effect);
+        throw err;
+      } finally {
+        evalContext = prevContext;
+        endBatch();
+      }
+    }
+  },
+  disposeEffect = function (effect) {
+    for (
+      let node = effect._sources;
+      node !== undefined;
+      node = node._nextSource
+    ) {
       node._source._unsubscribe(node);
-      if (prev !== undefined) {
-        prev._nextSource = node._nextSource;
-      }
-      if (node._nextSource !== undefined) {
-        node._nextSource._prevSource = prev;
-      }
-    } else {
-      head = node;
     }
-    node._source._node = node._rollbackNode;
-    if (node._rollbackNode !== undefined) {
-      node._rollbackNode = undefined;
+    effect._fn = undefined;
+    effect._sources = undefined;
+    cleanupEffect(effect);
+  },
+  endEffect = function (prevContext) {
+    if (evalContext !== this) {
+      throw new Error('Out-of-order effect');
     }
-    node = prev;
-  }
-  target._sources = head;
-},
- Computed = function (fn) {
-  Signal.call(this, undefined);
-  this._fn = fn;
-  this._sources = undefined;
-  this._globalVersion = globalVersion - 1;
-  this._flags = OUTDATED;
-},
- computed = function (fn) {
-  return new Computed(fn);
-},
- cleanupEffect = function (effect) {
-  const cleanup = effect._cleanup;
-  effect._cleanup = undefined;
-  if (typeof cleanup === 'function') {
-    startBatch();
-    const prevContext = evalContext;
-    evalContext = undefined;
+    cleanupSources(this);
+    evalContext = prevContext;
+    this._flags &= ~RUNNING;
+    if (this._flags & DISPOSED) {
+      disposeEffect(this);
+    }
+    endBatch();
+  },
+  Effect = function (fn) {
+    this._fn = fn;
+    this._cleanup = undefined;
+    this._sources = undefined;
+    this._nextBatchedEffect = undefined;
+    this._flags = TRACKING;
+  },
+  effect = function (fn) {
+    const effect2 = new Effect(fn);
     try {
-      cleanup();
+      effect2._callback();
     } catch (err) {
-      effect._flags &= ~RUNNING;
-      effect._flags |= DISPOSED;
-      disposeEffect(effect);
+      effect2._dispose();
       throw err;
-    } finally {
-      evalContext = prevContext;
-      endBatch();
     }
-  }
-},
- disposeEffect = function (effect) {
-  for (
-    let node = effect._sources;
-    node !== undefined;
-    node = node._nextSource
-  ) {
-    node._source._unsubscribe(node);
-  }
-  effect._fn = undefined;
-  effect._sources = undefined;
-  cleanupEffect(effect);
-},
- endEffect = function (prevContext) {
-  if (evalContext !== this) {
-    throw new Error('Out-of-order effect');
-  }
-  cleanupSources(this);
-  evalContext = prevContext;
-  this._flags &= ~RUNNING;
-  if (this._flags & DISPOSED) {
-    disposeEffect(this);
-  }
-  endBatch();
-},
- Effect = function (fn) {
-  this._fn = fn;
-  this._cleanup = undefined;
-  this._sources = undefined;
-  this._nextBatchedEffect = undefined;
-  this._flags = TRACKING;
-},
- effect = function (fn) {
-  const effect2 = new Effect(fn);
-  try {
-    effect2._callback();
-  } catch (err) {
-    effect2._dispose();
-    throw err;
-  }
-  return effect2._dispose.bind(effect2);
-},
- BRAND_SYMBOL = Symbol.for('preact-signals'),
- RUNNING = 1 << 0,
- NOTIFIED = 1 << 1,
- OUTDATED = 1 << 2,
- DISPOSED = 1 << 3,
- HAS_ERROR = 1 << 4,
- TRACKING = 1 << 5,
- evalContext = undefined,
- batchedEffect = undefined,
- batchDepth = 0,
- batchIteration = 0,
- globalVersion = 0;
+    return effect2._dispose.bind(effect2);
+  },
+  BRAND_SYMBOL = Symbol.for('preact-signals'),
+  RUNNING = 1 << 0,
+  NOTIFIED = 1 << 1,
+  OUTDATED = 1 << 2,
+  DISPOSED = 1 << 3,
+  HAS_ERROR = 1 << 4,
+  TRACKING = 1 << 5,
+  evalContext = undefined,
+  batchedEffect = undefined,
+  batchDepth = 0,
+  batchIteration = 0,
+  globalVersion = 0;
 Signal.prototype.brand = BRAND_SYMBOL;
 Signal.prototype._refresh = function () {
   return true;
@@ -263,7 +262,7 @@ Signal.prototype._subscribe = function (node) {
 Signal.prototype._unsubscribe = function (node) {
   if (this._targets !== undefined) {
     const prev = node._prevTarget,
-     next = node._nextTarget;
+      next = node._nextTarget;
     if (prev !== undefined) {
       prev._nextTarget = next;
       node._prevTarget = undefined;
@@ -279,8 +278,8 @@ Signal.prototype._unsubscribe = function (node) {
 };
 Signal.prototype.subscribe = function (fn) {
   return effect(() => {
-    const {value} = this,
-     prevContext = evalContext;
+    const { value } = this,
+      prevContext = evalContext;
     evalContext = undefined;
     try {
       fn(value);
@@ -293,7 +292,7 @@ Signal.prototype.valueOf = function () {
   return this.value;
 };
 Signal.prototype.toString = function () {
-  return `${this.value  }`;
+  return `${this.value}`;
 };
 Signal.prototype.toJSON = function () {
   return this.value;
@@ -440,8 +439,12 @@ Object.defineProperty(Computed.prototype, 'value', {
 Effect.prototype._callback = function () {
   const finish = this._start();
   try {
-    if (this._flags & DISPOSED) {return;}
-    if (this._fn === undefined) {return;}
+    if (this._flags & DISPOSED) {
+      return;
+    }
+    if (this._fn === undefined) {
+      return;
+    }
     const cleanup = this._fn();
     if (typeof cleanup === 'function') {
       this._cleanup = cleanup;
@@ -488,53 +491,53 @@ function $$el(qry) {
   return elemArr;
 }
 const el = function (tagname, ...args) {
-  const elem = document.createElement(tagname),
-   dElem = new DominityElement(elem);
-  args.forEach((arg, index) => {
-    if (typeof arg === 'string') {
-      const textNode = document.createTextNode(arg);
-      elem.appendChild(textNode);
-    } else if (typeof arg === 'function' && typeof arg() === 'string') {
-      const textNode = document.createTextNode(arg());
-      effect2(() => {
-        textNode.data = arg();
-      });
-      elem.appendChild(textNode);
-    } else if (arg instanceof DominityReactive) {
-      const textNode = document.createTextNode(arg.value);
-      elem.appendChild(textNode);
-      effect2(() => {
-        textNode.data = arg.value;
-      });
-    } else if (arg instanceof DominityElement) {
-      elem.appendChild(arg.elem);
-    } else if (
-      typeof arg === 'object' ||
-      (typeof arg === 'function' && typeof arg() === 'object')
-    ) {
-      dElem.attr(arg);
-    } else if (arg instanceof Array) {
-      arg.forEach((ar) => {
-        if (ar instanceof DominityElement) {
-          elem.appendChild(ar.elem);
-        } else {
-          throw new Error(
-            'Dominity Error: invalid element type passed in as array ,all elements of the array should be of type DominityElement',
-          );
-        }
-      });
-    } else {
-      throw new Error(
-        `Dominity Error: invalid type ${typeof arg} passed in as argument to dominity builder function`,
-      );
-    }
-  });
-  return dElem;
-},
- effect2 = effect, //This is a bundler problem it gets renamed but in the final export its effect itself not effect2
- state = signal,
- derived = computed,
- DominityReactive = Signal;
+    const elem = document.createElement(tagname),
+      dElem = new DominityElement(elem);
+    args.forEach((arg, index) => {
+      if (typeof arg === 'string') {
+        const textNode = document.createTextNode(arg);
+        elem.appendChild(textNode);
+      } else if (typeof arg === 'function' && typeof arg() === 'string') {
+        const textNode = document.createTextNode(arg());
+        effect2(() => {
+          textNode.data = arg();
+        });
+        elem.appendChild(textNode);
+      } else if (arg instanceof DominityReactive) {
+        const textNode = document.createTextNode(arg.value);
+        elem.appendChild(textNode);
+        effect2(() => {
+          textNode.data = arg.value;
+        });
+      } else if (arg instanceof DominityElement) {
+        elem.appendChild(arg.elem);
+      } else if (
+        typeof arg === 'object' ||
+        (typeof arg === 'function' && typeof arg() === 'object')
+      ) {
+        dElem.attr(arg);
+      } else if (arg instanceof Array) {
+        arg.forEach((ar) => {
+          if (ar instanceof DominityElement) {
+            elem.appendChild(ar.elem);
+          } else {
+            throw new Error(
+              'Dominity Error: invalid element type passed in as array ,all elements of the array should be of type DominityElement',
+            );
+          }
+        });
+      } else {
+        throw new Error(
+          `Dominity Error: invalid type ${typeof arg} passed in as argument to dominity builder function`,
+        );
+      }
+    });
+    return dElem;
+  },
+  effect2 = effect, //This is a bundler problem it gets renamed but in the final export its effect itself not effect2
+  state = signal,
+  derived = computed,
+  DominityReactive = Signal;
 //------------------------------------------💓💓💓💓💓💓💓 thanks for scrolling ------------------------------------------------
 class DominityElement {
   constructor(qry) {
@@ -545,31 +548,28 @@ class DominityElement {
     }
     if (this.elem == null) {
       console.error(`DominityError: element of query '${qry}'  NOT  FOUND `);
-      
     }
   }
   html(val) {
     if (val == null) {
       return this.elem.innerHTML;
-    } 
-      if (typeof val === 'function') {
-        effect2(() => {
-          this.html(val());
-        });
-      } else {
-        this.elem.innerHTML = val;
-      }
-      return this;
-    
+    }
+    if (typeof val === 'function') {
+      effect2(() => {
+        this.html(val());
+      });
+    } else {
+      this.elem.innerHTML = val;
+    }
+    return this;
   }
   css(prp, val = undefined) {
     if (typeof prp === 'string') {
       if (val == undefined) {
         return window.getComputedStyle(this.elem, null).getPropertyValue(prp);
-      } 
-        this.elem.style[prp] = val;
-        return this;
-      
+      }
+      this.elem.style[prp] = val;
+      return this;
     } else if (typeof prp === 'object') {
       Object.assign(this.elem.style, prp);
       return this;
@@ -584,13 +584,12 @@ class DominityElement {
     if (typeof prp === 'string') {
       if (val == undefined) {
         return this.elem.getAttribute(prp);
-      } 
-        this.elem.setAttribute(prp, val);
-        return this;
-      
+      }
+      this.elem.setAttribute(prp, val);
+      return this;
     } else if (typeof prp === 'object') {
       const attrs = Object.keys(prp),
-       vals = Object.values(prp);
+        vals = Object.values(prp);
       attrs.forEach((p, i) => {
         if (vals[i] instanceof DominityReactive) {
           effect2(() => {
@@ -676,16 +675,16 @@ class DominityElement {
           if (!(target.value instanceof Array)) {
             this.elem[attr] = target.value;
           } else if (target.value.includes(this.elem.name)) {
-              this.elem[attr] = true;
-            } else {
-              this.elem[attr] = false;
-            }
+            this.elem[attr] = true;
+          } else {
+            this.elem[attr] = false;
+          }
         });
       } else {
         this.elem[attr] = target.value;
       }
       let lastcalltime = 0,
-       timeoutId;
+        timeoutId;
       this.on('input', () => {
         let val = this.elem.value;
         if (this.attr('type') == 'number') {
@@ -702,10 +701,10 @@ class DominityElement {
               val = false;
             }
           } else if (this.elem.checked) {
-              val = [...target.value, this.elem.name];
-            } else {
-              val = target.value.filter((t) => t != this.elem.name);
-            }
+            val = [...target.value, this.elem.name];
+          } else {
+            val = target.value.filter((t) => t != this.elem.name);
+          }
         }
         if (options?.debounce == undefined && options?.throttle == undefined) {
           target.value = val;
@@ -759,7 +758,7 @@ export class DominityRouter {
   setRoutes(routeMap = {}) {
     Object.keys(routeMap).forEach((key) => {
       const routeobj = {},
-       routeData = routeMap[key];
+        routeData = routeMap[key];
       routeobj.viewKey = state(
         routeData.isDefault != null && routeData.isDefault,
       );
@@ -793,8 +792,8 @@ export class DominityRouter {
               }).elem,
             );
           } else if (routeMap[key].componentLoaded) {
-              routeMap[key].componentLoaded.remove();
-            }
+            routeMap[key].componentLoaded.remove();
+          }
         });
       }
       this.routeMap[key] = routeobj;
@@ -867,129 +866,129 @@ export function lazy(path) {
 }
 
 const htmlTags = [
-  'a',
-  'abbr',
-  'address',
-  'area',
-  'article',
-  'aside',
-  'audio',
-  'b',
-  'base',
-  'bdi',
-  'bdo',
-  'blockquote',
-  'body',
-  'br',
-  'button',
-  'canvas',
-  'caption',
-  'cite',
-  'code',
-  'col',
-  'colgroup',
-  'data',
-  'datalist',
-  'dd',
-  'del',
-  'details',
-  'dfn',
-  'dialog',
-  'div',
-  'dl',
-  'dt',
-  'em',
-  'embed',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'header',
-  'hr',
-  'html',
-  'i',
-  'iframe',
-  'img',
-  'input',
-  'ins',
-  'kbd',
-  'label',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'map',
-  'mark',
-  'meta',
-  'meter',
-  'nav',
-  'noscript',
-  'object',
-  'ol',
-  'optgroup',
-  'option',
-  'output',
-  'p',
-  'param',
-  'picture',
-  'pre',
-  'progress',
-  'q',
-  'rb',
-  'rp',
-  'rt',
-  'rtc',
-  's',
-  'samp',
-  'script',
-  'section',
-  'select',
-  'small',
-  'source',
-  'span',
-  'strong',
-  'style',
-  'sub',
-  'summary',
-  'sup',
-  'table',
-  'tbody',
-  'td',
-  'template',
-  'textarea',
-  'tfoot',
-  'th',
-  'thead',
-  'time',
-  'title',
-  'tr',
-  'u',
-  'ul',
-  'var',
-  'video',
-  'wbr',
-  'slot',
-],
- D = htmlTags.reduce(
-  (dobj, tag) => {
-    dobj[tag] = (...args) => {
-      const Delem = el(tag, ...args);
-      dobj.root.appendChild(Delem.elem);
-      return Delem;
-    };
-    return dobj;
-  },
-  {
-    root: document.body,
-  },
-);
+    'a',
+    'abbr',
+    'address',
+    'area',
+    'article',
+    'aside',
+    'audio',
+    'b',
+    'base',
+    'bdi',
+    'bdo',
+    'blockquote',
+    'body',
+    'br',
+    'button',
+    'canvas',
+    'caption',
+    'cite',
+    'code',
+    'col',
+    'colgroup',
+    'data',
+    'datalist',
+    'dd',
+    'del',
+    'details',
+    'dfn',
+    'dialog',
+    'div',
+    'dl',
+    'dt',
+    'em',
+    'embed',
+    'fieldset',
+    'figcaption',
+    'figure',
+    'footer',
+    'form',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'header',
+    'hr',
+    'html',
+    'i',
+    'iframe',
+    'img',
+    'input',
+    'ins',
+    'kbd',
+    'label',
+    'legend',
+    'li',
+    'link',
+    'main',
+    'map',
+    'mark',
+    'meta',
+    'meter',
+    'nav',
+    'noscript',
+    'object',
+    'ol',
+    'optgroup',
+    'option',
+    'output',
+    'p',
+    'param',
+    'picture',
+    'pre',
+    'progress',
+    'q',
+    'rb',
+    'rp',
+    'rt',
+    'rtc',
+    's',
+    'samp',
+    'script',
+    'section',
+    'select',
+    'small',
+    'source',
+    'span',
+    'strong',
+    'style',
+    'sub',
+    'summary',
+    'sup',
+    'table',
+    'tbody',
+    'td',
+    'template',
+    'textarea',
+    'tfoot',
+    'th',
+    'thead',
+    'time',
+    'title',
+    'tr',
+    'u',
+    'ul',
+    'var',
+    'video',
+    'wbr',
+    'slot',
+  ],
+  D = htmlTags.reduce(
+    (dobj, tag) => {
+      dobj[tag] = (...args) => {
+        const Delem = el(tag, ...args);
+        dobj.root.appendChild(Delem.elem);
+        return Delem;
+      };
+      return dobj;
+    },
+    {
+      root: document.body,
+    },
+  );
 
 export var {
   a,

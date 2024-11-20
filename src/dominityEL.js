@@ -40,13 +40,12 @@ class DominityElement {
   text(val = null) {
     if (val == null) {
       return this.elem.textContent;
-    } 
-      if (!this.template) {
-        this.template = val; //Stores previous content
-      }
-      this.elem.textContent = val;
-      return this;
-    
+    }
+    if (!this.template) {
+      this.template = val; //Stores previous content
+    }
+    this.elem.textContent = val;
+    return this;
   }
 
   /**
@@ -61,13 +60,13 @@ class DominityElement {
       r.subscribe((t) => {
         if (typeof t.value !== 'object') {
           this.text(
-            template.replace(new RegExp(`{{${  r.name  }}}`, 'gi'), t.value),
+            template.replace(new RegExp(`{{${r.name}}}`, 'gi'), t.value),
           );
         } else {
           Object.keys(t.value).forEach((k) => {
             this.html(
               template.replace(
-                new RegExp(`{{${  r.name  }.${  k  }}}`, 'gi'),
+                new RegExp(`{{${r.name}.${k}}}`, 'gi'),
                 t.value[k],
               ),
             );
@@ -89,10 +88,9 @@ class DominityElement {
   html(val = null) {
     if (val == null) {
       return this.elem.innerHTML;
-    } 
-      this.elem.innerHTML = val;
-      return this;
-    
+    }
+    this.elem.innerHTML = val;
+    return this;
   }
 
   //Css styling
@@ -108,10 +106,9 @@ class DominityElement {
     if (typeof prp === 'string') {
       if (val == null) {
         return window.getComputedStyle(this.elem, null).getPropertyValue(prp);
-      } 
-        this.elem.style[prp] = val;
-        return this;
-      
+      }
+      this.elem.style[prp] = val;
+      return this;
     } else if (typeof prp === 'object') {
       Object.assign(this.elem.style, prp);
       return this;
@@ -161,14 +158,18 @@ class DominityElement {
         this.bindClass(byprocess(v.value), classname);
       });
     } else if (react) {
-        this.class(classname);
-        if (swap != '') {
-          if (this.hasClass(swap)) {this.removeClass(swap);}
+      this.class(classname);
+      if (swap != '') {
+        if (this.hasClass(swap)) {
+          this.removeClass(swap);
         }
-      } else {
-        this.removeClass(classname);
-        if (swap != '') {this.class(swap);}
       }
+    } else {
+      this.removeClass(classname);
+      if (swap != '') {
+        this.class(swap);
+      }
+    }
     return this;
   }
 
@@ -193,13 +194,12 @@ class DominityElement {
     if (typeof prp === 'string') {
       if (val == null) {
         return this.elem.getAttribute(prp);
-      } 
-        this.elem.setAttribute(prp, val);
-        return this;
-      
+      }
+      this.elem.setAttribute(prp, val);
+      return this;
     } else if (typeof prp === 'object') {
       const attrs = Object.keys(prp),
-       vals = Object.values(prp);
+        vals = Object.values(prp);
       attrs.forEach((p, i) => {
         this.attr(p, vals[i]);
       });
@@ -252,9 +252,8 @@ class DominityElement {
   value(val = null) {
     if (val == null) {
       return this.elem.value;
-    } 
-      this.elem.value = val;
-    
+    }
+    this.elem.value = val;
   }
 
   //Events manipulation---------------------------
@@ -392,7 +391,9 @@ class DominityElement {
    */
   _el(typ, txt = '', attrs = {}) {
     const created = !typ.dominityElem ? this.create(typ) : typ;
-    if (!typ.dominityElem) {this.addChild(created);}
+    if (!typ.dominityElem) {
+      this.addChild(created);
+    }
 
     if (typeof txt === 'object') {
       created.attr(txt);
@@ -496,7 +497,7 @@ class DominityElement {
   //Indevelopment
   root(element = 'body') {
     let pn = this;
-    while (!pn.matches(`${element  } > *`)) {
+    while (!pn.matches(`${element} > *`)) {
       pn = pn.parent();
     }
     return pn;
@@ -550,9 +551,8 @@ class DominityElement {
   contains(nod) {
     if (nod.dominityElem) {
       return this.elem.contains(nod.elem);
-    } 
-      return this.elem.contains(nod);
-    
+    }
+    return this.elem.contains(nod);
   }
   /**
    * Checks if the element matches a specific query or an element
@@ -565,9 +565,8 @@ class DominityElement {
     } else if (typeof q === 'object') {
       if (q.dominityElem) {
         return q === this;
-      } 
-        return q === this.elem;
-      
+      }
+      return q === this.elem;
     }
   }
 
@@ -705,10 +704,10 @@ class DominityElement {
         if (!(d.value instanceof Array)) {
           this.elem[attr] = d.value;
         } else if (d.value.includes(this.elem.name)) {
-            this.elem[attr] = true;
-          } else {
-            this.elem[attr] = false;
-          }
+          this.elem[attr] = true;
+        } else {
+          this.elem[attr] = false;
+        }
       });
       target.update();
       this.checkFor('input', () => {
@@ -728,10 +727,10 @@ class DominityElement {
               val = false;
             }
           } else if (this.elem.checked) {
-              val = [...target.value, this.elem.name];
-            } else {
-              val = target.value.filter((t) => t != this.elem.name);
-            }
+            val = [...target.value, this.elem.name];
+          } else {
+            val = target.value.filter((t) => t != this.elem.name);
+          }
         }
 
         target.set(val);
@@ -858,12 +857,12 @@ class DominityElement {
         this.elem.msRequestFullscreen();
       }
     } else if (this.elem.exitFullScreen) {
-        this.elem.exitFullScreen();
-      } else if (this.elem.webkitExitFullscreen) {
-        this.elem.webkitExitFullscreen();
-      } else if (this.elem.msExitFullScreen) {
-        this.elem.msExitFullscreen();
-      }
+      this.elem.exitFullScreen();
+    } else if (this.elem.webkitExitFullscreen) {
+      this.elem.webkitExitFullscreen();
+    } else if (this.elem.msExitFullScreen) {
+      this.elem.msExitFullscreen();
+    }
 
     return this;
   }
@@ -981,9 +980,8 @@ class DominityReactive {
   get(prop = '') {
     if (prop != '') {
       return this.value[prop];
-    } 
-      return this.value;
-    
+    }
+    return this.value;
   }
   /**
    * Sets a property of an object reactable
